@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Details Form</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin: 20px auto;
+        display: block;
+    }
+    button:hover {
+        opacity: 0.8;
+    }
+    .mandatory::after {
+        content: "*";
+        color: red;
+        margin-left: 3px;
+    }
+    #calculationResult {
+        display: none;
+    }
+    #calculationResult table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    #calculationResult th, #calculationResult td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    #calculationResult th {
+        background-color: #f2f2f2;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>TDS Calculator</h2>
+    <form id="paymentForm">
+        <label for="vendor">Vendor<span class="mandatory"></span>:</label>
+        <select id="vendor" name="vendor" required onchange="populateData()">
+            <option value="">Select vendor</option>
+            <option value="A">Brij Kishore</option>
+            <option value="B">Renu Kumar</option>
+            <option value="C">JVP Pavani</option>
+            <!-- Add more options as needed -->
+        </select>
+        
+        <label for="pan">PAN:</label>
+        <input type="text" id="pan" name="pan" required readonly oninput="populateRegistration()" maxlength="10">
+        
+        <label for="registration">Registration:</label>
+        <input type="text" id="registration" name="registration" required readonly>
+        
+        <label for="nature">Nature of Payment<span class="mandatory"></span>:</label>
+        <select id="nature" name="nature" required onchange="populateData()">
+            <option value="">Select Nature of Payment</option>
+            <option value="A">Contract 1%</option>
+            <option value="B">Contract 2%</option>
+            <option value="C">Commission</option>
+            <option value="D">Professional Charges</option>
+            <!-- Add more options as needed -->
+        </select>
+        
+        <label for="rate">Rate:</label>
+        <input type="text" id="rate" name="rate" required readonly>
+        
+        <label for="amount">Amount<span class="mandatory"></span>:</label>
+        <input type="text" id="amount" name="amount" required step="0.01" oninput="formatAmount(this)">
+        
+        <button type="button" onclick="calculate()">Calculate</button>
+    </form>
+    <div id="calculationResult">
+        <h3>Calculation Result:</h3>
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Amount</td>
+                <td id="displayAmount"></td>
+            </tr>
+            <tr>
+                <td>Tax</td>
+                <td id="displayTax"></td>
+            </tr>
+            <tr>
+                <td>Payment to be made</td>
+                <td id="displayPayment"></td>
+            </tr>
+        </table>
+    </div>
+    <button onclick="submitRecord()">Submit Record</button>
+</div>
+
+<script>
+    function populateData() {
+        var vendor = document.getElementById("vendor").value;
+        var pan = document.getElementById("pan");
+        var rate = document.getElementById("rate");
+
+        // Update PAN based on the selected vendor
+        if (vendor === "A") {
+            pan.value = "BXXPR8044G";
+        } else if (vendor === "B") {
+            pan.value = "AGQP12805K";
+        } else if (vendor === "C") {
+            pan.value = "ALXPJ8573D";
+        } else {
+            pan.value = "";
+        }
+
+        // Update rate based on the selected nature of payment
+        var nature = document.getElementById("nature").value;
+        if (nature === "A") {
+            rate.value = "1%";
+        } else if (nature === "B") {
+            rate.value = "2%";
+        } else if (nature === "C") {
+            rate.value = "5%";
+        } else if (nature === "D") {
+            rate.value = "10%";
+        } else {
+            rate.value = "";
+        }
+
+        // Update registration based on the selected vendor
+        var registration = document.getElementById("registration");
+        populateRegistration();
+    }
+
+    function populateRegistration() {
+        var pan = document.getElementById("pan").value;
+        var registration = document.getElementById("registration");
+
+        if (pan.length >= 4) {
+            var fourthLetter = pan.charAt(3).toUpperCase();
+            switch (fourthLetter) {
+                case "P":
+                    registration.value = "Individual";
+                    break;
+                case "C":
+                    registration.value = "Company";
+                    break;
+                case "H":
+                    registration.value = "Hindu Undivided Family (HUF)";
+                    break;
+                case "A":
+                    registration.value = "Association of Persons (AOP)";
+                    break;
+                case "B":
+                    registration.value = "Body of Individuals (BOI)";
+                    break;
+                case "G":
+                    registration.value = "Government Agency";
+                    break;
+                case "J":
+                    registration.value = "Artificial Juridical Person";
+                    break;
+                case "L":
+                    registration.value = "Local Authority";
+                    break;
+                case "E":
+                    registration.value = "Limited Liability Partnership";
+                    break;
+                case "F":
+                    registration.value = "Firm";
+                    break;
+                case "T":
+                    registration.value = "Trust";
+                    break;
+                default:
+                    registration.value = "";
+            }
+        } else {
+            registration.value = "";
+        }
+    }
+
+    function formatAmount(input) {
+        var value = input.value;
+        // Remove non-digit characters
+        value = value.replace(/[^\d.]/g, '');
+        // Format number with commas
+        value = formatNumber(value);
+        input.value = value;
+    }
+
+    function formatNumber(number) {
+        var parts = number.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    }
+
+    function calculate() {
+        var vendor = document.getElementById("vendor").value;
+        var nature = document.getElementById("nature").value;
+        var amount = document.getElementById("amount").value;
+        var rate = parseFloat(document.getElementById("rate").value.replace('%', '')) || 0;
+
+        // Check if mandatory fields are filled
+        if (!vendor || !nature || !amount) {
+            alert("Vendor, Nature of Payment, and Amount fields are mandatory.");
+            return;
+        }
+
+        // Remove commas from amount
+        amount = amount.replace(/,/g, '');
+
+        // Convert amount to number
+        amount = parseFloat(amount) || 0;
+
+        // Calculate tax
+        var tax = (amount * rate / 100).toFixed(2);
+
+        // Calculate payment to be made
+        var payment = (amount - tax).toFixed(2);
+
+        // Display calculation results
+        displayCalculationResult(amount, tax, payment);
+    }
+
+    function displayCalculationResult(amount, tax, payment) {
+        var displayAmount = document.getElementById("displayAmount");
+        var displayTax = document.getElementById("displayTax");
+        var displayPayment = document.getElementById("displayPayment");
+
+        displayAmount.textContent = formatNumber(amount);
+        displayTax.textContent = formatNumber(tax);
+        displayPayment.textContent = formatNumber(payment);
+
+        document.getElementById("calculationResult").style.display = "block";
+    }
+
+    function submitRecord() {
+        var vendor = document.getElementById("vendor").value;
+        var pan = document.getElementById("pan").value;
+        var registration = document.getElementById("registration").value;
+        var nature = document.getElementById("nature").value;
+        var rate = document.getElementById("rate").value;
+        var amount = document.getElementById("amount").value;
+        var tax = document.getElementById("displayTax").textContent;
+        var payment = document.getElementById("displayPayment").textContent;
+
+        // You can now submit these values to your Google Form using Google Forms API or Google Apps Script.
+        // This part depends on how you want to handle form submissions.
+        // Here's a simple example of how you can open the Google Form in a new tab with prefilled values:
+        var googleFormURL = "https://forms.gle/GRKhSR3qa9s9Kybm6";
+        var submitURL = googleFormURL + 
+                        "?entry.123456789=" + encodeURIComponent(vendor) + 
+                        "&entry.987654321=" + encodeURIComponent(pan) +
+                        "&entry.456789123=" + encodeURIComponent(registration) +
+                        "&entry.111111111=" + encodeURIComponent(nature) +
+                        "&entry.222222222=" + encodeURIComponent(rate) +
+                        "&entry.333333333=" + encodeURIComponent(amount) +
+                        "&entry.444444444=" + encodeURIComponent(tax) +
+                        "&entry.555555555=" + encodeURIComponent(payment);
+        
+        // Open the Google Form in a new tab with prefilled values
+        window.open(submitURL);
+    }
+</script>
+
+</body>
+</html>
