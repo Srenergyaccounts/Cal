@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment Details Form</title>
+<title>Tax Calculation and Submission Form</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -68,6 +69,8 @@
             <option value="A">Brij Kishore</option>
             <option value="B">Renu Kumar</option>
             <option value="C">JVP Pavani</option>
+            <option value="D">Guriya Indrajit Chauhan</option>
+            <option value="E">Madaka Tirupathi</option>
             <!-- Add more options as needed -->
         </select>
         
@@ -132,6 +135,10 @@
             pan.value = "AGQP12805K";
         } else if (vendor === "C") {
             pan.value = "ALXPJ8573D";
+        } else if (vendor === "D") {
+            pan.value = "BHEPC5787L";
+        } else if (vendor === "E") {
+            pan.value = "BXCPT0969H";
         } else {
             pan.value = "";
         }
@@ -273,14 +280,14 @@
         // Here's a simple example of how you can open the Google Form in a new tab with prefilled values:
         var googleFormURL = "https://forms.gle/GRKhSR3qa9s9Kybm6";
         var submitURL = googleFormURL + 
-                        "?entry.123456789=" + encodeURIComponent(vendor) + 
+                        "?entry.Vendor=" + encodeURIComponent(vendor) + 
                         "&entry.987654321=" + encodeURIComponent(pan) +
                         "&entry.456789123=" + encodeURIComponent(registration) +
                         "&entry.111111111=" + encodeURIComponent(nature) +
                         "&entry.222222222=" + encodeURIComponent(rate) +
-                        "&entry.333333333=" + encodeURIComponent(amount) +
+                        "&entry.Amount=" + encodeURIComponent(amount) +
                         "&entry.444444444=" + encodeURIComponent(tax) +
-                        "&entry.555555555=" + encodeURIComponent(payment);
+                        "&entry.Payment Made=" + encodeURIComponent(payment);
         
         // Open the Google Form in a new tab with prefilled values
         window.open(submitURL);
