@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,18 +104,22 @@
             <tr>
                 <th>Category</th>
                 <th>Value</th>
+                <th>Copy</th>
             </tr>
             <tr>
                 <td>Amount</td>
                 <td id="displayAmount"></td>
+                <td><button onclick="copyResult('displayAmount')">Copy</button></td>
             </tr>
             <tr>
                 <td>Tax</td>
                 <td id="displayTax"></td>
+                <td><button onclick="copyResult('displayTax')">Copy</button></td>
             </tr>
             <tr>
                 <td>Payment to be made</td>
                 <td id="displayPayment"></td>
+                <td><button onclick="copyResult('displayPayment')">Copy</button></td>
             </tr>
         </table>
     </div>
@@ -247,10 +250,10 @@
         amount = parseFloat(amount) || 0;
 
         // Calculate tax
-        var tax = (amount * rate / 100).toFixed(2);
+        var tax = Math.round(amount * rate / 100);
 
         // Calculate payment to be made
-        var payment = (amount - tax).toFixed(2);
+        var payment = Math.round(amount - tax);
 
         // Display calculation results
         displayCalculationResult(amount, tax, payment);
@@ -295,6 +298,46 @@
         // Open the Google Form in a new tab with prefilled values
         window.open(submitURL);
     }
+
+    function copyResult(elementId) {
+        var copyText = document.getElementById(elementId);
+        var textArea = document.createElement("textarea");
+        textArea.value = copyText.textContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        alert("Copied the text: " + copyText.textContent);
+    }
+
+    function copyResult(elementId) {
+        var copyText = document.getElementById(elementId).textContent;
+        var textArea = document.createElement("textarea");
+        textArea.value = copyText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+
+        var notification = document.createElement("div");
+        notification.textContent = "Amount copied!";
+        notification.style.position = "fixed";
+        notification.style.top = "10px";
+        notification.style.right = "10px";
+        notification.style.backgroundColor = "#4CAF50";
+        notification.style.color = "white";
+        notification.style.padding = "10px";
+        notification.style.borderRadius = "5px";
+        document.body.appendChild(notification);
+
+        setTimeout(function() {
+            notification.style.opacity = "0";
+            setTimeout(function() {
+                document.body.removeChild(notification);
+            }, 200);
+        }, 400);
+    }
+
 </script>
 
 </body>
